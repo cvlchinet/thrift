@@ -32,4 +32,6 @@ service ErrorTest
 {
   TestStruct         testStruct(1: TestStruct thing)
   string             testString(1: string s)
+  void               testFail()
+  oneway void        testOneWayFail()
 }

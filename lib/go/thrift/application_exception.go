@@ -107,6 +107,9 @@ func (p *tApplicationException) Read(iprot TProtocol) (TApplicationException, er
 
 func (p *tApplicationException) Write(oprot TProtocol) (err error) {
 	err = oprot.WriteStructBegin("TApplicationException")
+	if err != nil {
+		return
+	}
 	if len(p.Error()) > 0 {
 		err = oprot.WriteFieldBegin("message", STRING, 1)
 		if err != nil {
