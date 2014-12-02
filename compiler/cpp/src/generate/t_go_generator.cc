@@ -242,7 +242,9 @@ public:
   std::string declare_argument(t_field* tfield);
   std::string render_field_initial_value(t_field* tfield, const string& name, bool optional_field);
   std::string type_name(t_type* ttype);
-  std::string function_signature(t_function* tfunction, std::string prefix = "");
+  std::string function_signature(t_function* tfunction,
+                                 std::string prefix = "",
+                                 std::string additional = "");
   std::string function_signature_if(t_function* tfunction,
                                     std::string prefix = "",
                                     bool addError = false);
@@ -3199,10 +3201,18 @@ string t_go_generator::render_field_initial_value(t_field* tfield,
  * @param tfunction Function definition
  * @return String of rendered function definition
  */
-string t_go_generator::function_signature(t_function* tfunction, string prefix) {
+string t_go_generator::function_signature(t_function* tfunction, string prefix, string additional) {
+
+  string args = argument_list(tfunction->get_arglist());
+  if (additional != "") {
+    if (args != "") {
+      args += ",";
+    }
+    args += additional;
+  }
+
   // TODO(mcslee): Nitpicky, no ',' if argument_list is empty
-  return publicize(prefix + tfunction->get_name()) + "(" + argument_list(tfunction->get_arglist())
-         + ")";
+  return publicize(prefix + tfunction->get_name()) + "(" + args + ")";
 }
 
 /**
@@ -3289,7 +3299,7 @@ string t_go_generator::type_to_enum(t_type* type) {
 
     case t_base_type::TYPE_STRING:
       if (((t_base_type*)type)->is_binary()) {
-          return "thrift.BINARY";
+        return "thrift.BINARY";
       }
       return "thrift.STRING";
 
