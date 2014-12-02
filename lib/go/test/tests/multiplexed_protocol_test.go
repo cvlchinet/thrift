@@ -151,7 +151,5 @@ func TestCallLegacy(t *testing.T) {
 }
 
 func TestShutdownServerAndClients(t *testing.T) {
-	firstClient.Transport.Close()
-	secondClient.Transport.Close()
 	server.Stop()
 }
