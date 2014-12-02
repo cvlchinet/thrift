@@ -20,6 +20,7 @@
 package thrift
 
 import (
+	"fmt"
 	"net"
 	"time"
 )
@@ -157,4 +158,8 @@ func (p *TSocket) Interrupt() error {
 		return nil
 	}
 	return p.conn.Close()
+}
+
+func (p *TSocket) String() string {
+	return fmt.Sprintf("%T(%s)", p, p.addr)
 }

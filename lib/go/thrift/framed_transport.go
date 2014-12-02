@@ -156,3 +156,12 @@ func (p *TFramedTransport) readFrameHeader() (int, error) {
 	}
 	return size, nil
 }
+
+func (p *TFramedTransport) String() string {
+	stringer, ok := p.transport.(fmt.Stringer)
+	if ok {
+		return fmt.Sprintf("%T(%s)", p, stringer.String())
+	} else {
+		return fmt.Sprintf("%T(%T, %p)", p, p.transport, p.transport)
+	}
+}

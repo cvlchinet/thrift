@@ -21,6 +21,7 @@ package thrift
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 )
 
@@ -205,4 +206,8 @@ func (p *StreamTransport) WriteString(s string) (n int, err error) {
 		err = NewTTransportExceptionFromError(err)
 	}
 	return
+}
+
+func (p *StreamTransport) String() string {
+	return fmt.Sprintf("%T(%p, %p)", p, p.Reader, p.Writer)
 }

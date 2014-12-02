@@ -21,6 +21,7 @@ package thrift
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
 	"time"
 )
@@ -154,4 +155,8 @@ func (p *TSSLSocket) Interrupt() error {
 		return nil
 	}
 	return p.conn.Close()
+}
+
+func (p *TSSLSocket) String() string {
+	return fmt.Sprintf("%T(%s)", p, p.addr)
 }
