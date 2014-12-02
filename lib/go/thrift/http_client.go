@@ -21,6 +21,7 @@ package thrift
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -188,4 +189,8 @@ func (p *THttpClient) Flush() error {
 	}
 	p.response = response
 	return nil
+}
+
+func (p *THttpClient) String() string {
+	return fmt.Sprintf("%T(%s)", p, p.url)
 }

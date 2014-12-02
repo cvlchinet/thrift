@@ -52,7 +52,7 @@ func (t *TSerializer) WriteString(msg TStruct) (s string, err error) {
 		return
 	}
 
-	return t.Transport.String(), nil
+	return t.Transport.Buffer.String(), nil
 }
 
 func (t *TSerializer) Write(msg TStruct) (b []byte, err error) {

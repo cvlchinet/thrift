@@ -21,6 +21,7 @@ package thrift
 
 import (
 	"bytes"
+	"fmt"
 )
 
 // Memory buffer-based implementation of the TTransport interface.
@@ -72,4 +73,8 @@ func (p *TMemoryBuffer) Close() error {
 // Flushing a memory buffer is a no-op
 func (p *TMemoryBuffer) Flush() error {
 	return nil
+}
+
+func (p *TMemoryBuffer) String() string {
+	return fmt.Sprintf("%T(%p)", p, p.Buffer)
 }

@@ -21,6 +21,7 @@ package thrift
 
 import (
 	"bufio"
+	"fmt"
 )
 
 type TBufferedTransportFactory struct {
@@ -67,4 +68,13 @@ func (p *TBufferedTransport) Flush() error {
 		return err
 	}
 	return p.tp.Flush()
+}
+
+func (p *TBufferedTransport) String() string {
+	stringer, ok := p.tp.(fmt.Stringer)
+	if ok {
+		return fmt.Sprintf("%T(%s)", p, stringer.String())
+	} else {
+		return fmt.Sprintf("%T(%T, %p)", p, p.tp, p.tp)
+	}
 }
