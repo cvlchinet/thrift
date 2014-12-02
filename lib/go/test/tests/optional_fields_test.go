@@ -251,7 +251,7 @@ func TestOneBinSetFieldOnWire(t *testing.T) {
 	proto := NewMockTProtocol(mockCtrl)
 	gomock.InOrder(
 		proto.EXPECT().WriteStructBegin("all_optional").Return(nil),
-		proto.EXPECT().WriteFieldBegin("bin", thrift.TType(thrift.STRING), int16(13)).Return(nil),
+		proto.EXPECT().WriteFieldBegin("bin", thrift.TType(thrift.BINARY), int16(13)).Return(nil),
 		proto.EXPECT().WriteBinary([]byte("somebytestring")).Return(nil),
 		proto.EXPECT().WriteFieldEnd().Return(nil),
 		proto.EXPECT().WriteFieldStop().Return(nil),
@@ -268,7 +268,7 @@ func TestOneEmptyBinSetFieldOnWire(t *testing.T) {
 	proto := NewMockTProtocol(mockCtrl)
 	gomock.InOrder(
 		proto.EXPECT().WriteStructBegin("all_optional").Return(nil),
-		proto.EXPECT().WriteFieldBegin("bin", thrift.TType(thrift.STRING), int16(13)).Return(nil),
+		proto.EXPECT().WriteFieldBegin("bin", thrift.TType(thrift.BINARY), int16(13)).Return(nil),
 		proto.EXPECT().WriteBinary([]byte{}).Return(nil),
 		proto.EXPECT().WriteFieldEnd().Return(nil),
 		proto.EXPECT().WriteFieldStop().Return(nil),

@@ -57,11 +57,12 @@ namespace Thrift.Protocol
             public const byte I32 = 0x05;
             public const byte I64 = 0x06;
             public const byte DOUBLE = 0x07;
-            public const byte BINARY = 0x08;
+            public const byte STRING = 0x08;
             public const byte LIST = 0x09;
             public const byte SET = 0x0A;
             public const byte MAP = 0x0B;
             public const byte STRUCT = 0x0C;
+            public const byte BINARY = 0x0D;
         }
 
         /**
@@ -112,11 +113,12 @@ namespace Thrift.Protocol
             ttypeToCompactType[(int)TType.I32] = Types.I32;
             ttypeToCompactType[(int)TType.I64] = Types.I64;
             ttypeToCompactType[(int)TType.Double] = Types.DOUBLE;
-            ttypeToCompactType[(int)TType.String] = Types.BINARY;
+            ttypeToCompactType[(int)TType.String] = Types.STRING;
             ttypeToCompactType[(int)TType.List] = Types.LIST;
             ttypeToCompactType[(int)TType.Set] = Types.SET;
             ttypeToCompactType[(int)TType.Map] = Types.MAP;
             ttypeToCompactType[(int)TType.Struct] = Types.STRUCT;
+            ttypeToCompactType[(int)TType.Binary] = Types.BINARY;
         }
 
         public void reset()
@@ -825,8 +827,10 @@ namespace Thrift.Protocol
                     return TType.I64;
                 case Types.DOUBLE:
                     return TType.Double;
-                case Types.BINARY:
+                case Types.STRING:
                     return TType.String;
+                case Types.BINARY:
+                    return TType.Binary;
                 case Types.LIST:
                     return TType.List;
                 case Types.SET:
