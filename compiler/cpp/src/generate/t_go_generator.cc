@@ -1607,66 +1607,108 @@ void t_go_generator::generate_service_client(t_service* tservice) {
     f_service_ << indent() << "*" << extends_client << endl;
   } else {
     f_service_ << indent() << "Locker sync.Locker" << endl;
-    f_service_ << indent() << "Transport thrift.TTransport" << endl;
-    f_service_ << indent() << "ProtocolFactory thrift.TProtocolFactory" << endl;
-    f_service_ << indent() << "InputProtocol thrift.TProtocol" << endl;
-    f_service_ << indent() << "OutputProtocol thrift.TProtocol" << endl;
+    f_service_ << indent() << "ClientControl thrift.TClientControl" << endl;
+    f_service_ << indent() << "ServiceName string" << endl;
     f_service_ << indent() << "SeqId int32" << endl;
-    /*f_service_ << indent() << "reqs map[int32]Deferred" << endl*/;
   }
 
   indent_down();
   f_service_ << indent() << "}" << endl << endl;
+
   // Constructor function
   f_service_ << indent() << "func New" << serviceName
              << "ClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *" << serviceName
              << "Client {" << endl;
   indent_up();
-  f_service_ << indent() << "return &" << serviceName << "Client";
 
   if (!extends.empty()) {
-    f_service_ << "{" << extends_field << ": " << extends_client_new << "Factory(t, f)}";
+    f_service_ << indent() << "ext := " << extends_client_new << "Factory(t, f)" << endl;
+    f_service_ << indent() << "ext.ServiceName = \"" << serviceName << "\"" << endl;
+    f_service_ << indent() << "return &" << serviceName << "Client{" << extends_field << ": ext}"
+               << endl;
   } else {
-    indent_up();
-    f_service_ << "{Transport: t," << endl;
-    f_service_ << indent() << "Locker: &sync.Mutex{}," << endl;
-    f_service_ << indent() << "ProtocolFactory: f," << endl;
-    f_service_ << indent() << "InputProtocol: f.GetProtocol(t)," << endl;
-    f_service_ << indent() << "OutputProtocol: f.GetProtocol(t)," << endl;
-    f_service_ << indent() << "SeqId: 0," << endl;
-    /*f_service_ << indent() << "Reqs: make(map[int32]Deferred)" << endl*/;
-    indent_down();
+    f_service_ << indent() << "return &" << serviceName << "Client{" << endl;
+    f_service_ << indent() << "  Locker: &sync.Mutex{}," << endl;
+    f_service_ << indent() << "  ClientControl: thrift.NewTSimpleClientControl("
+                              "f.GetProtocol(t), f.GetProtocol(t))," << endl;
+    f_service_ << indent() << "  ServiceName: \"" << serviceName << "\"," << endl;
+    f_service_ << indent() << "  SeqId: 0," << endl;
     f_service_ << indent() << "}" << endl;
   }
 
   indent_down();
   f_service_ << indent() << "}" << endl << endl;
+
   // Constructor function
   f_service_
       << indent() << "func New" << serviceName
       << "ClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *"
       << serviceName << "Client {" << endl;
   indent_up();
-  f_service_ << indent() << "return &" << serviceName << "Client";
 
   if (!extends.empty()) {
-    f_service_ << "{" << extends_field << ": " << extends_client_new << "Protocol(t, iprot, oprot)}"
+    f_service_ << indent() << "ext := " << extends_client_new << "Protocol(t, iprot, oprot)"
+               << endl;
+    f_service_ << indent() << "ext.ServiceName = \"" << serviceName << "\"" << endl;
+    f_service_ << indent() << "return &" << serviceName << "Client{" << extends_field << ": ext}"
                << endl;
   } else {
-    indent_up();
-    f_service_ << "{Transport: t," << endl;
-    f_service_ << indent() << "Locker: &sync.Mutex{}," << endl;
-    f_service_ << indent() << "ProtocolFactory: nil," << endl;
-    f_service_ << indent() << "InputProtocol: iprot," << endl;
-    f_service_ << indent() << "OutputProtocol: oprot," << endl;
-    f_service_ << indent() << "SeqId: 0," << endl;
-    /*f_service_ << indent() << "Reqs: make(map[int32]interface{})" << endl*/;
-    indent_down();
+    f_service_ << indent() << "return &" << serviceName << "Client{" << endl;
+    f_service_ << indent() << "  Locker: &sync.Mutex{}," << endl;
+    f_service_ << indent() << "  ClientControl: "
+                              "thrift.NewTSimpleClientControl(iprot, oprot)," << endl;
+    f_service_ << indent() << "  ServiceName: \"" << serviceName << "\"," << endl;
+    f_service_ << indent() << "  SeqId: 0," << endl;
+    f_service_ << indent() << "}" << endl;
+  }
+  indent_down();
+  f_service_ << indent() << "}" << endl << endl;
+
+  // Constructor function
+  f_service_ << indent() << "func New" << serviceName
+             << "ClientControl(control thrift.TClientControl) *" << serviceName << "Client {"
+             << endl;
+  indent_up();
+
+  if (!extends.empty()) {
+    f_service_ << indent() << "ext := " << extends_client_new << "Control(control)" << endl;
+    f_service_ << indent() << "ext.ServiceName = \"" << serviceName << "\"" << endl;
+    f_service_ << indent() << "return &" << serviceName << "Client{" << extends_field << ": ext}"
+               << endl;
+  } else {
+    f_service_ << indent() << "return &" << serviceName << "Client{" << endl;
+    f_service_ << indent() << "  Locker: &sync.Mutex{}," << endl;
+    f_service_ << indent() << "  ClientControl: control," << endl;
+    f_service_ << indent() << "  ServiceName: \"" << serviceName << "\"," << endl;
+    f_service_ << indent() << "  SeqId: 0," << endl;
+    f_service_ << indent() << "}" << endl;
+  }
+  indent_down();
+  f_service_ << indent() << "}" << endl << endl;
+
+  // Constructor function
+  f_service_ << indent() << "func New" << serviceName
+             << "Client(factory thrift.TClientControlFactory) *" << serviceName << "Client {"
+             << endl;
+  indent_up();
+
+  if (!extends.empty()) {
+    f_service_ << indent() << "ext := " << extends_client_new << "(factory)" << endl;
+    f_service_ << indent() << "ext.ServiceName = \"" << serviceName << "\"" << endl;
+    f_service_ << indent() << "return &" << serviceName << "Client{" << extends_field << ": ext}"
+               << endl;
+  } else {
+    f_service_ << indent() << "return &" << serviceName << "Client{" << endl;
+    f_service_ << indent() << "  Locker: &sync.Mutex{}," << endl;
+    f_service_ << indent() << "  ClientControl: factory.ClientControl()," << endl;
+    f_service_ << indent() << "  ServiceName: \"" << serviceName << "\"," << endl;
+    f_service_ << indent() << "  SeqId: 0," << endl;
     f_service_ << indent() << "}" << endl;
   }
 
   indent_down();
   f_service_ << indent() << "}" << endl << endl;
+
   // Generate client method implementations
   vector<t_function*> functions = tservice->get_functions();
   vector<t_function*>::const_iterator f_iter;
@@ -1695,6 +1737,25 @@ void t_go_generator::generate_service_client(t_service* tservice) {
     f_service_ << indent() << "seqId := p.SeqId " << endl;
     f_service_ << indent() << "p.Locker.Unlock()" << endl << endl;
 
+    f_service_ << indent() << "for try := 0; p.ClientControl.ShouldRun("
+                              "p.ServiceName, try, err); try++ {" << endl;
+    indent_up();
+    f_service_ << indent() << "err = nil" << endl;
+
+    if (!(*f_iter)->is_oneway()) {
+      f_service_ << indent()
+                 << "iprot, oprot, err2 := p.ClientControl.AcquireProtocols(p.ServiceName)" << endl;
+    } else {
+
+      f_service_ << indent() << "_, oprot, err2 := p.ClientControl.AcquireProtocols(p.ServiceName)"
+                 << endl;
+    }
+
+    f_service_ << indent() << "if err2 != nil {" << endl;
+    f_service_ << indent() << "  err = err2" << endl;
+    f_service_ << indent() << "  continue" << endl;
+    f_service_ << indent() << "}" << endl << endl;
+
     f_service_ << indent() << "if err = p.send" << funname << "(";
     bool first = true;
 
@@ -1711,32 +1772,41 @@ void t_go_generator::generate_service_client(t_service* tservice) {
     if (!first) {
       f_service_ << ", ";
     }
-    f_service_ << "seqId";
-    f_service_ << "); err != nil { return }" << endl;
+    f_service_ << "seqId, oprot";
+    f_service_ << "); err != nil { continue }" << endl;
 
     if (!(*f_iter)->is_oneway()) {
-      f_service_ << indent() << "return p.recv" << funname << "(";
-      f_service_ << "seqId";
+      string retArgs = "err";
+      if (!(*f_iter)->get_returntype()->is_void()) {
+        retArgs = "r, " + retArgs;
+      }
+      f_service_ << endl;
+      f_service_ << indent() << "err = p.ClientControl.WaitForDelivery(p.ServiceName, iprot, seqId)"
+                 << endl;
+      f_service_ << indent() << "if err != nil {" << endl;
+      f_service_ << indent() << indent() << "continue" << endl;
+      f_service_ << indent() << "}" << endl << endl;
+
+      f_service_ << indent() << retArgs << " = p.recv" << funname << "(";
+      f_service_ << "seqId, iprot";
       f_service_ << ")" << endl;
-    } else {
-      f_service_ << indent() << "return" << endl;
+      f_service_ << indent() << "if err != nil { continue }" << endl;
     }
 
+    f_service_ << indent() << "break" << endl;
+    indent_down();
+    f_service_ << indent() << "}" << endl;
+    f_service_ << indent() << "return" << endl;
     indent_down();
     f_service_ << indent() << "}" << endl << endl;
 
     string additionalSendParam = "";
-    additionalSendParam += "seqId int32";
+    additionalSendParam += "seqId int32, oprot thrift.TProtocol";
     f_service_ << indent() << "func (p *" << serviceName << "Client) send"
                << function_signature(*f_iter, "", additionalSendParam) << "(err error) {" << endl;
     indent_up();
     std::string argsname = publicize((*f_iter)->get_name() + "_args", true);
     // Serialize the request header
-    f_service_ << indent() << "oprot := p.OutputProtocol" << endl;
-    f_service_ << indent() << "if oprot == nil {" << endl;
-    f_service_ << indent() << "  oprot = p.ProtocolFactory.GetProtocol(p.Transport)" << endl;
-    f_service_ << indent() << "  p.OutputProtocol = oprot" << endl;
-    f_service_ << indent() << "}" << endl;
     f_service_ << indent() << "if err = oprot.WriteMessageBegin(\"" << (*f_iter)->get_name()
                << "\", " << ((*f_iter)->is_oneway() ? "thrift.ONEWAY" : "thrift.CALL")
                << ", seqId); err != nil {" << endl;
@@ -1772,7 +1842,7 @@ void t_go_generator::generate_service_client(t_service* tservice) {
       // Open function
       f_service_ << endl << indent() << "func (p *" << serviceName << "Client) recv"
                  << publicize((*f_iter)->get_name()) << "(";
-      f_service_ << "expSeqId int32";
+      f_service_ << "expSeqId int32, iprot thrift.TProtocol";
       f_service_ << ") (";
 
       if (!(*f_iter)->get_returntype()->is_void()) {
@@ -1784,11 +1854,6 @@ void t_go_generator::generate_service_client(t_service* tservice) {
       // TODO(mcslee): Validate message reply here, seq ids etc.
       string error(tmp("error"));
       string error2(tmp("error"));
-      f_service_ << indent() << "iprot := p.InputProtocol" << endl;
-      f_service_ << indent() << "if iprot == nil {" << endl;
-      f_service_ << indent() << "  iprot = p.ProtocolFactory.GetProtocol(p.Transport)" << endl;
-      f_service_ << indent() << "  p.InputProtocol = iprot" << endl;
-      f_service_ << indent() << "}" << endl;
       f_service_ << indent() << "method, mTypeId, seqId, err := iprot.ReadMessageBegin()" << endl;
       f_service_ << indent() << "if err != nil {" << endl;
       f_service_ << indent() << "  return" << endl;
