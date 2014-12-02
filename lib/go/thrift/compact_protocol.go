@@ -45,11 +45,12 @@ const (
 	COMPACT_I32           = 0x05
 	COMPACT_I64           = 0x06
 	COMPACT_DOUBLE        = 0x07
-	COMPACT_BINARY        = 0x08
+	COMPACT_STRING        = 0x08
 	COMPACT_LIST          = 0x09
 	COMPACT_SET           = 0x0A
 	COMPACT_MAP           = 0x0B
 	COMPACT_STRUCT        = 0x0C
+	COMPACT_BINARY        = 0x0D
 )
 
 var (
@@ -65,11 +66,12 @@ func init() {
 		I32:    COMPACT_I32,
 		I64:    COMPACT_I64,
 		DOUBLE: COMPACT_DOUBLE,
-		STRING: COMPACT_BINARY,
+		STRING: COMPACT_STRING,
 		LIST:   COMPACT_LIST,
 		SET:    COMPACT_SET,
 		MAP:    COMPACT_MAP,
 		STRUCT: COMPACT_STRUCT,
+		BINARY: COMPACT_BINARY,
 	}
 }
 
@@ -777,7 +779,7 @@ func (p *TCompactProtocol) getTType(t tCompactType) (TType, error) {
 		return I64, nil
 	case COMPACT_DOUBLE:
 		return DOUBLE, nil
-	case COMPACT_BINARY:
+	case COMPACT_STRING:
 		return STRING, nil
 	case COMPACT_LIST:
 		return LIST, nil
@@ -787,6 +789,8 @@ func (p *TCompactProtocol) getTType(t tCompactType) (TType, error) {
 		return MAP, nil
 	case COMPACT_STRUCT:
 		return STRUCT, nil
+	case COMPACT_BINARY:
+		return BINARY, nil
 	}
 	return STOP, TException(fmt.Errorf("don't know what type: %s", t&0x0f))
 }

@@ -84,6 +84,7 @@ namespace Thrift.Protocol
         private static byte[] NAME_DOUBLE = new byte[] { (byte)'d', (byte)'b', (byte)'l' };
         private static byte[] NAME_STRUCT = new byte[] { (byte)'r', (byte)'e', (byte)'c' };
         private static byte[] NAME_STRING = new byte[] { (byte)'s', (byte)'t', (byte)'r' };
+        private static byte[] NAME_BINARY = new byte[] { (byte)'b', (byte)'i', (byte)'n' };
         private static byte[] NAME_MAP = new byte[] { (byte)'m', (byte)'a', (byte)'p' };
         private static byte[] NAME_LIST = new byte[] { (byte)'l', (byte)'s', (byte)'t' };
         private static byte[] NAME_SET = new byte[] { (byte)'s', (byte)'e', (byte)'t' };
@@ -114,6 +115,8 @@ namespace Thrift.Protocol
                     return NAME_SET;
                 case TType.List:
                     return NAME_LIST;
+                case TType.Binary:
+                    return NAME_BINARY;
                 default:
                     throw new TProtocolException(TProtocolException.NOT_IMPLEMENTED,
                                                  "Unrecognized type");
@@ -168,6 +171,9 @@ namespace Thrift.Protocol
                         break;
                     case (byte)'t':
                         result = TType.Bool;
+                        break;
+                    case (byte)'b':
+                        result = TType.Binary;
                         break;
                 }
             }

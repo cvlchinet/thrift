@@ -528,6 +528,8 @@ func (p *TJSONProtocol) TypeIdToString(fieldType TType) (string, error) {
 		return "set", nil
 	case LIST:
 		return "lst", nil
+	case BINARY:
+		return "bin", nil
 	}
 
 	e := fmt.Errorf("Unknown fieldType: %d", int(fieldType))
@@ -558,6 +560,8 @@ func (p *TJSONProtocol) StringToTypeId(fieldType string) (TType, error) {
 		return TType(SET), nil
 	case "lst":
 		return TType(LIST), nil
+	case "bin":
+		return TType(BINARY), nil
 	}
 
 	e := fmt.Errorf("Unknown type identifier: %s", fieldType)
