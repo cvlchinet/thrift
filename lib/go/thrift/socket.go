@@ -22,13 +22,15 @@ package thrift
 import (
 	"fmt"
 	"net"
+	"sync"
 	"time"
 )
 
 type TSocket struct {
-	conn    net.Conn
-	addr    net.Addr
-	timeout time.Duration
+	conn       net.Conn
+	addr       net.Addr
+	timeout    time.Duration
+	connLocker sync.RWMutex
 }
 
 // NewTSocket creates a net.Conn-backed TTransport, given a host and port
@@ -72,17 +74,20 @@ func (p *TSocket) pushDeadline(read, write bool) {
 		t = time.Now().Add(time.Duration(p.timeout))
 	}
 	if read && write {
-		p.conn.SetDeadline(t)
+		p.Conn().SetDeadline(t)
 	} else if read {
-		p.conn.SetReadDeadline(t)
+		p.Conn().SetReadDeadline(t)
 	} else if write {
-		p.conn.SetWriteDeadline(t)
+		p.Conn().SetWriteDeadline(t)
 	}
 }
 
 // Connects the socket, creating a new socket object if necessary.
 func (p *TSocket) Open() error {
-	if p.IsOpen() {
+	p.connLocker.Lock()
+	defer p.connLocker.Unlock()
+
+	if p.conn != nil {
 		return NewTTransportException(ALREADY_OPEN, "Socket already connected.")
 	}
 	if p.addr == nil {
@@ -103,12 +108,15 @@ func (p *TSocket) Open() error {
 
 // Retrieve the underlying net.Conn
 func (p *TSocket) Conn() net.Conn {
+	p.connLocker.RLock()
+	defer p.connLocker.RUnlock()
+
 	return p.conn
 }
 
 // Returns true if the connection is open
 func (p *TSocket) IsOpen() bool {
-	if p.conn == nil {
+	if p.Conn() == nil {
 		return false
 	}
 	return true
@@ -116,6 +124,9 @@ func (p *TSocket) IsOpen() bool {
 
 // Closes the socket.
 func (p *TSocket) Close() error {
+	p.connLocker.Lock()
+	defer p.connLocker.Unlock()
+
 	// Close the socket
 	if p.conn != nil {
 		err := p.conn.Close()
@@ -137,7 +148,7 @@ func (p *TSocket) Read(buf []byte) (int, error) {
 		return 0, NewTTransportException(NOT_OPEN, "Connection not open")
 	}
 	p.pushDeadline(true, false)
-	n, err := p.conn.Read(buf)
+	n, err := p.Conn().Read(buf)
 	return n, NewTTransportExceptionFromError(err)
 }
 
@@ -146,7 +157,7 @@ func (p *TSocket) Write(buf []byte) (int, error) {
 		return 0, NewTTransportException(NOT_OPEN, "Connection not open")
 	}
 	p.pushDeadline(false, true)
-	return p.conn.Write(buf)
+	return p.Conn().Write(buf)
 }
 
 func (p *TSocket) Flush() error {
@@ -157,7 +168,7 @@ func (p *TSocket) Interrupt() error {
 	if !p.IsOpen() {
 		return nil
 	}
-	return p.conn.Close()
+	return p.Conn().Close()
 }
 
 func (p *TSocket) String() string {

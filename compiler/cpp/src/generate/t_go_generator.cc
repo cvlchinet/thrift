@@ -1266,6 +1266,8 @@ void t_go_generator::generate_go_struct_reader(ofstream& out,
   }
   out << endl;
 
+  // TODO: Infinite loop on client Read() if STOP was not send.
+  
   // Loop over reading in fields
   indent(out) << "for {" << endl;
   indent_up();

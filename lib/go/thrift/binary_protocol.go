@@ -286,16 +286,16 @@ func (p *TBinaryProtocol) ReadStructEnd() error {
 	return nil
 }
 
-func (p *TBinaryProtocol) ReadFieldBegin() (name string, typeId TType, seqId int16, err error) {
+func (p *TBinaryProtocol) ReadFieldBegin() (name string, typeId TType, id int16, err error) {
 	t, err := p.ReadByte()
 	typeId = TType(t)
 	if err != nil {
-		return name, typeId, seqId, err
+		return name, typeId, id, err
 	}
 	if t != STOP {
-		seqId, err = p.ReadI16()
+		id, err = p.ReadI16()
 	}
-	return name, typeId, seqId, err
+	return name, typeId, id, err
 }
 
 func (p *TBinaryProtocol) ReadFieldEnd() error {
@@ -437,6 +437,7 @@ func (p *TBinaryProtocol) ReadString() (value string, err error) {
 	return p.readStringBody(int(size))
 }
 
+// TODO: Impose size limit!
 func (p *TBinaryProtocol) ReadBinary() ([]byte, error) {
 	size, e := p.ReadI32()
 	if e != nil {
@@ -469,6 +470,7 @@ func (p *TBinaryProtocol) readAll(buf []byte) error {
 	return NewTProtocolException(err)
 }
 
+// TODO: Impose size limit!
 func (p *TBinaryProtocol) readStringBody(size int) (value string, err error) {
 	if size < 0 {
 		return "", nil
